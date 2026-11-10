@@ -22,7 +22,7 @@ python3 rsa_ctf_solver.py --host chatelaine.cylabacademy.net --port 41131 --samp
 
 On terminaL:
 ````shell
-wget https://github.com/Nin-Kanong/CTF-Scripts/blob/main/01.%20RSA/weak_rsa_solver.py
+wget -O weak_rsa_solver.py "https://raw.githubusercontent.com/Nin-Kanong/CTF-Scripts/main/01.%20RSA/weak_rsa_solver.py"
 ````
 
 ````shell
