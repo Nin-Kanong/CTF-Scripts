@@ -11,3 +11,15 @@ Execute:
 python3 rsa_ctf_solver.py --host chatelaine.cylabacademy.net --port 41131 --samples 3
 ````
 
+
+
+---
+
+
+### Download:
+
+On terminaL:
+````shell
+wget 
+````
+
