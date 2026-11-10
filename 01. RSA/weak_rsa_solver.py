@@ -97,17 +97,25 @@ def decrypt(n, e, c, p, q):
 
 
 def main():
-    p = argparse.ArgumentParser(description="Recover plaintext from weak RSA CTF examples")
+    # The argparse module automatically creates the -h / --help menu!
+    p = argparse.ArgumentParser(
+        description="Recover plaintext from weak RSA CTF examples.",
+        epilog="Example: python3 weak_rsa_solver.py --host chatelaine.cylabacademy.net --port 41131",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
     source = p.add_mutually_exclusive_group(required=True)
     source.add_argument("--host", help="CTF server host (requires --port)")
     source.add_argument("--file", help="File containing N/e/cyphertext lines")
     source.add_argument("--n", type=int, help="RSA modulus for manual input")
+    
     p.add_argument("--port", type=int, help="CTF server port")
     p.add_argument("--samples", type=int, default=3, help="Connections to make, default 3")
     p.add_argument("--e", type=int, help="Public exponent with --n")
     p.add_argument("--c", type=int, help="Ciphertext with --n")
     p.add_argument("--small-limit", type=int, default=10001, help="Trial division maximum, default 10001")
     p.add_argument("--fermat-steps", type=int, default=10000, help="Fermat iterations, default 10000")
+    
     args = p.parse_args()
 
     if args.host:
