@@ -4,6 +4,26 @@
 
 `script.py` is a parameterized brute-force solver for CTFs based on **small linear feedback shift registers** and byte-XOR or bit-XOR keystreams. It also tries single-byte XOR.
 
+
+
+---
+
+
+### Download:
+````shell
+wget -O weak_xor.py "https://raw.githubusercontent.com/Nin-Kanong/CTF-Scripts/main/02.%20Cryptography/03.%20Linear%20Feedback%20Shift%20Register%20%28LFSR%29/weak_xor.py"
+````
+
+---
+
+
+### Identify
+````
+30cbb50e507774fdafd01e0bfdbc38d5eadf92991cdd347064e37444e517d661cea9
+````
+
+---
+
 ## Start immediately
 
 Put `script.py` and the CTF-provided `output.txt` in the same directory, then run:
@@ -22,13 +42,6 @@ python3 script.py -c 30cbb50e507774fdafd01e0bfdbc38d5eadf92991cdd347064e37444e51
 cat output.txt | python3 script.py -  # read from stdin
 ```
 
----
-
-
-### Identify
-````
-30cbb50e507774fdafd01e0bfdbc38d5eadf92991cdd347064e37444e517d661cea9
-````
 
 ---
 
