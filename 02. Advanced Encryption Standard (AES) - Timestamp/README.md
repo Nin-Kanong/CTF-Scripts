@@ -40,7 +40,7 @@ python3 timestamp.py --time 1790147507 --ciphertext 6ef9b7a5c1c336425793f8cdae5b
 Read a noninteractive CTF service banner that provides public timestamp and ciphertext (no commands are sent):
 
 ```bash
-python3 timestamp.py --host YOUR_AUTHORIZED_CTF_HOST --port 12345
+python3 timestamp.py --host <Target_HOST> --port <Target_Port>
 ```
 
 Windows PowerShell:
