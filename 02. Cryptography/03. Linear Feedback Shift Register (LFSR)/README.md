@@ -17,10 +17,82 @@ wget -O weak_xor.py "https://raw.githubusercontent.com/Nin-Kanong/CTF-Scripts/ma
 ---
 
 
-### Identify
+## Identify
 ````
 30cbb50e507774fdafd01e0bfdbc38d5eadf92991cdd347064e37444e517d661cea9
 ````
+
+
+In this if script give us script like ``script.py`` and it content:
+````py
+key = bytes_to_long(get_random_bytes(126))
+````
+This creates a large key. But look at the next important line:
+````
+lfsr = key & 0xFF
+````
+
+````mermaid
+flowchart TD
+    %% Input
+    A["🔑 <b>Original Key</b><br/>1008 bits (126 bytes)"]
+    
+    %% The flaw
+    B["⚠️ <b>Vulnerability</b><br/>Only the lowest 8 bits are retained"]
+    
+    %% Result
+    C["🔓 <b>Effective Initial State</b><br/>8 bits (256 possible states)"]
+    
+    %% Conclusion
+    D["❌ <b>Weak Cipher</b><br/>Brute-forceable in seconds"]
+
+    %% Connections
+    A --> B
+    B --> C
+    C --> D
+
+    %% Styling
+    classDef key fill:#3b82f6,stroke:#1e3a8a,stroke-width:2px,color:#fff;
+    classDef flaw fill:#ef4444,stroke:#991b1b,stroke-width:2px,color:#fff;
+    classDef state fill:#f59e0b,stroke:#b45309,stroke-width:2px,color:#fff;
+    classDef weak fill:#64748b,stroke:#334155,stroke-width:2px,color:#fff;
+
+    class A key;
+    class B flaw;
+    class C state;
+    class D weak;
+````
+
+
+
+Next, the encryption performs:
+````py
+output.append(p ^ ks)
+````
+
+
+### Identify other common XOR attacks
+
+**Single-byte XOR:**
+````py
+key = 42ciphertext = bytes(p ^ key for p in plaintext)
+````
+**Detection**: One byte is reused for every character. Try all 256 possible keys.
+
+
+**Repeating-key XOR**:
+````
+key = b"SECRET"ciphertext = bytes(    p ^ key[i % len(key)]    for i, p in enumerate(plaintext))
+````
+**Detection**: The key cycles repeatedly. Known-plaintext attacks or frequency analysis may recover it.
+
+
+**Weak LFSR XOR**:
+````
+lfsr = key & 0xFFfor p in plaintext:    lfsr = steplfsr(lfsr)    ciphertext.append(p ^ lfsr)
+````
+**Detection**: An 8-bit initial state generates the keystream. Brute-force all initial states.
+
 
 ---
 
