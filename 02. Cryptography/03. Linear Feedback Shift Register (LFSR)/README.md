@@ -1,5 +1,8 @@
 # CTF Weak LFSR / XOR Solver
 
+
+**Developer:** `k4n0ng`  
+
 **Requires:** Python 3.9+; standard library only (no pip install).
 
 `script.py` is a parameterized brute-force solver for CTFs based on **small linear feedback shift registers** and byte-XOR or bit-XOR keystreams. It also tries single-byte XOR.
@@ -118,85 +121,107 @@ cat output.txt | python3 script.py -  # read from stdin
 ---
 
 
+## Capabilities
+
+| Feature | Usage | Requirements and limits |
+| --- | --- | --- |
+| Single-byte XOR search | `--mode single-byte` | Tries 256 keys |
+| Repeating-key XOR, known key | `--mode repeating --key ICE` or `--key-hex 494345` | Explicit key |
+| Repeating-key XOR, unknown key | `--mode repeating --key-size 3` or `--max-key-size 20` | Statistical guesses; short flags benefit from known prefix |
+| Small LFSR brute force | `--mode state` or `--mode bit` | Default 8-bit; known taps, direction, and output model |
+| Wide LFSR known seed | `--width 64 --seed 0x... --taps ...` | Exact model parameters |
+| GF(2) seed recovery | `--attack linear --crib 'known plaintext'` | Correct taps, enough independent known bits |
+| Berlekamp–Massey | `--mode bit --attack bm --prefix 'long known prefix'` | Linear bitstream and contiguous known prefix at byte zero |
+| Unknown small-register taps | `--tap-search 1-4` | Combinatorial; search/memory guardrails |
+| Conventional output variants | `--auto`, `--direction`, `--emit`, `--bit-order` | Limited known conventions, not arbitrary generators |
+| File conversion and filtering | `--format`, `--prefix`, `--regex`, `--json`, `--save` | Ranking is heuristic |
+
+
 ## Useful options
 
-### Current challenge: known parameters
+
+## Ciphertext input formats
+
+For a hex ciphertext in `output.txt`:
 
 ```bash
-python3 script.py -f output.txt --width 8 --taps 7,5,4,3 --direction right --emit after --mode state --prefix 'academy{'
+python3 weak_xor.py -f output.txt --prefix 'academy{'
 ```
 
-### Initial state or output mechanism unknown
+For *raw binary* data:
 
 ```bash
-python3 script.py -f output.txt --mode auto --auto
+python3 weak_xor.py -f encrypted.bin --format raw --mode single-byte
 ```
 
-This checks state-as-byte, bit-output, and single-byte XOR. For the LFSR configurations, it tries shift directions and output before or after the update; for bit-output it also tries bit ordering and end bit selection.
-
-### Unknown feedback tap positions, but four taps in an 8-bit LFSR
+For base64 text:
 
 ```bash
-python3 script.py -f output.txt --tap-search 4 --width 8 --prefix 'academy{'
+python3 weak_xor.py -f encrypted.b64 --format base64 --mode repeating
 ```
 
-### Unknown count of feedback taps (one through four)
+From stdin:
 
 ```bash
-python3 script.py -f output.txt --tap-search 1-4 --width 8 --prefix 'academy{'
+cat output.txt | python3 weak_xor.py -f -
 ```
 
-### 12-bit LFSR, and keystream taken from bits 4..11
+By default `--format auto` detects valid hex, and otherwise treats the input as raw bytes. It does **not** automatically decode base64; specify `--format base64`.
+
+## 8-bit LFSR variants and tap search
 
 ```bash
-python3 script.py -f output.txt --width 12 --taps 11,8,6,2 --byte-offset 4
+python3 weak_xor.py -f samples/01_8bit_state.txt --prefix 'academy{'
+python3 weak_xor.py -f samples/02_8bit_bit.txt --mode bit --prefix 'academy{'
+python3 weak_xor.py -f output.txt --mode auto --auto --prefix 'flag{'
+python3 weak_xor.py -f output.txt --tap-search 1-4 --prefix 'academy{'
 ```
 
-### Bit-output LFSR
+`--mode auto` tries multiple families; `--auto` tries multiple register direction and emission conventions. They are two different switches.
+
+## 32-bit LFSR, unknown seed, known plaintext
 
 ```bash
-python3 script.py -f output.txt --mode bit --width 8 --taps 7,5,4,3 --bit-index 7 --bit-order msb
+python3 weak_xor.py -f samples/05_32bit_state_linear.txt \
+  --width 32 --taps 31,21,1,0 --attack linear \
+  --prefix 'I know this first part of the plaintext, but NOT'
 ```
 
-### One-byte XOR key used for all bytes
+You can instead specify known text at an arbitrary byte offset:
 
 ```bash
-python3 script.py -f output.txt --mode single-byte
+python3 weak_xor.py -f output.txt --width 32 --taps 31,21,1,0 \
+  --mode bit --attack linear --crib 'some known text' --offset 12
 ```
 
-### Ciphertext is a raw binary file
+This technique uses GF(2) linear algebra to solve register-state equations. When constraints do not uniquely specify the initial state, `free_bits` and `unique` indicate that several seeds are possible. More known plaintext or assumptions may be needed.
+
+## Linear bitstream recovery without taps
 
 ```bash
-python3 script.py -f encrypted.bin --format raw
+python3 weak_xor.py -f samples/06_16bit_bm.txt \
+  --mode bit --attack bm \
+  --prefix 'This is a known and lengthy prefix!'
 ```
 
-### Filter by a known plaintext / flag prefix
+Berlekamp–Massey fits a minimal binary linear recurrence to the known keystream bits. It can predict future bits **if the observed stream really follows that recurrence**. Short known sequences can overfit; confirm the results.
+
+## Single-byte and repeating-key XOR
 
 ```bash
-python3 script.py -f output.txt --prefix 'picoCTF{'
-python3 script.py -f output.txt --contains 'admin'
-python3 script.py -f output.txt --crib 'CTF{' --offset 4
-python3 script.py -f output.txt --regex 'academy\\{.*\\}'
+python3 weak_xor.py -f samples/03_single_byte.txt --mode single-byte --prefix 'flag{'
+python3 weak_xor.py -f samples/04_repeating_key.txt --mode repeating --key-size 3 --prefix 'flag{'
+python3 weak_xor.py -f output.txt --mode repeating --max-key-size 25 --top 15
+python3 weak_xor.py -f output.txt --mode repeating --key ICE
 ```
 
-### Export best candidate as raw bytes / machine-readable JSON
+A sufficiently long known prefix can reveal all bytes of a short repeating XOR key. Without it, candidate ranking is statistical and may fail, particularly on short challenge flags.
 
-```bash
-python3 script.py -f output.txt --save recovered.bin
-python3 script.py -f output.txt --json --top 5
-```
 
-### See *all* plaintext candidates (including non-printable ones)
 
-```bash
-python3 script.py -f output.txt --all --top 0
-```
 
-### Get all options
 
-```bash
-python3 script.py --help
-```
+---
 
 ## How to translate CTF source into options
 
