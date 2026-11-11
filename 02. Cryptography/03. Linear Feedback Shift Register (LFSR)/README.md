@@ -12,13 +12,7 @@ Put `script.py` and the CTF-provided `output.txt` in the same directory, then ru
 python3 script.py
 ```
 
-For the provided ciphertext, it finds:
-
-```text
-academy{l1n3ar_f33dback_sh1ft_r3g}
-```
-
-You can pass the ciphertext in these ways:
+We can pass the ciphertext in these ways:
 
 ```bash
 python3 script.py                    # automatically reads ./output.txt
@@ -27,6 +21,17 @@ python3 script.py -f output.txt
 python3 script.py -c 30cbb50e507774fdafd01e0bfdbc38d5eadf92991cdd347064e37444e517d661cea9
 cat output.txt | python3 script.py -  # read from stdin
 ```
+
+---
+
+
+### Identify
+````
+30cbb50e507774fdafd01e0bfdbc38d5eadf92991cdd347064e37444e517d661cea9
+````
+
+---
+
 
 ## Useful options
 
