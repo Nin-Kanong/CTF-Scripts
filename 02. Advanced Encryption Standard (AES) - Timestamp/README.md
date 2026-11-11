@@ -10,7 +10,7 @@ A reusable Python 3 command-line and interactive tool for **authorized CTF chall
 
 On Kali Linux (inside a venv):
 
-```bash
+```shell
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install cryptography
@@ -23,7 +23,7 @@ python3 -c 'from cryptography.hazmat.primitives.ciphers import Cipher, algorithm
 
 Put `timestamp.py` and `message.txt` in the same directory.
 
-```bash
+```shell
 python3 timestamp.py --help
 python3 timestamp.py                          # interactive, asks for inputs
 python3 timestamp.py --file message.txt
