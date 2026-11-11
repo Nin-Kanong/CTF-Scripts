@@ -219,6 +219,10 @@ A sufficiently long known prefix can reveal all bytes of a short repeating XOR k
 
 
 
+### Use with .bin
+````
+python3 weak_xor.py -f encrypted.bin --format raw --mode repeating --key-size 4 --prefix 'THM{'
+````
 
 
 ---
