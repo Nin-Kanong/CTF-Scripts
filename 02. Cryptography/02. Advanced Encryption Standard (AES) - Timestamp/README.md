@@ -10,6 +10,19 @@ A reusable Python 3 command-line and interactive tool for **authorized CTF chall
 
 On Kali Linux (inside a venv):
 
+---
+
+
+## Download isolate file
+
+````shell
+wget -O timestamp.py 'https://raw.githubusercontent.com/Nin-Kanong/CTF-Scripts/main/02.%20Cryptography/02.%20Advanced%20Encryption%20Standard%20%28AES%29%20-%20Timestamp/timestamp.py'
+````
+
+
+---
+
+
 ```shell
 python3 -m venv .venv
 source .venv/bin/activate
